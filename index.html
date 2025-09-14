@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Twitch Regex Generator</title>
+<title>Chatty-Style Regex Generator</title>
 <style>
   :root {
     --bg: #0e0e10;
@@ -21,7 +21,7 @@
     padding: 20px;
   }
   h1 { color: var(--accent); }
-  .container { max-width: 900px; margin: 0 auto; }
+  .container { max-width: 700px; margin: 0 auto; }
   .card {
     background: var(--card);
     padding: 16px;
@@ -30,7 +30,7 @@
     border: 1px solid var(--border);
   }
   label { display: block; margin: 10px 0 5px; font-weight: bold; }
-  input[type="text"], textarea, select {
+  input[type="text"], textarea {
     width: 100%;
     padding: 8px;
     border-radius: 6px;
@@ -56,88 +56,71 @@
     white-space: pre-wrap;
     border: 1px solid var(--border);
   }
-  .checkboxes label {
-    display: block;
-    margin: 4px 0;
-    font-weight: normal;
-  }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Twitch Regex Generator</h1>
+  <h1>Chatty-Style Regex Generator</h1>
   <div class="card">
-    <label>Bausteine wählen:</label>
-    <div class="checkboxes">
-      <label><input type="checkbox" id="time" checked> Zeitstempel (z.B. 12:34:56)</label>
-      <label><input type="checkbox" id="user" checked> Username</label>
-      <label><input type="checkbox" id="message" checked> Nachricht</label>
-    </div>
-    
-    <label>Flags:</label>
-    <input type="text" id="flags" value="gm" placeholder="z.B. gm für global + multiline">
-    
-    <button onclick="generateRegex()">Regex generieren</button>
-    
-    <div class="result" id="regexResult"></div>
+    <label>Wort eingeben:</label>
+    <input type="text" id="wordInput" placeholder="z.B. dominik">
+
+    <button onclick="generateChattyRegex()">Regex generieren</button>
+    <div class="result" id="regexOutput"></div>
   </div>
 
   <div class="card">
-    <label>Beispiel-Logs zum Testen:</label>
-    <textarea id="testText" placeholder="Hier Logs einfügen..."></textarea>
-    <button onclick="testRegex()">Regex testen</button>
+    <label>Testtext:</label>
+    <textarea id="testText" placeholder="Hier Testnachrichten einfügen..."></textarea>
+    <button onclick="testChattyRegex()">Regex testen</button>
     <div class="result" id="testResult"></div>
   </div>
 </div>
 
 <script>
-function generateRegex() {
+function generateChattyRegex() {
+  let word = document.getElementById('wordInput').value.trim();
+  if (!word) {
+    document.getElementById('regexOutput').textContent = "Bitte ein Wort eingeben!";
+    return;
+  }
+
+  // Buchstaben einzeln in Chatty-Regex umwandeln
   let parts = [];
-  if (document.getElementById('time').checked) {
-    parts.push("(?<time>\\d{2}:\\d{2}:\\d{2})");
+  for (let ch of word) {
+    let variants = ch;
+    if (ch.toLowerCase() === 'o') variants = 'oö0';
+    if (ch.toLowerCase() === 'i') variants = 'i|y|e|1';
+    if (ch.toLowerCase() === 'a') variants = 'a|4';
+    if (ch.toLowerCase() === 'e') variants = 'e|3';
+    parts.push("([" + variants + "][\\W_]*?)+");
   }
-  if (document.getElementById('user').checked) {
-    parts.push("(?<user>[^:]+)");
-  }
-  if (document.getElementById('message').checked) {
-    parts.push("(?<message>.*)");
-  }
-  
-  let pattern = "^" + parts.join("\\s+") + "$";
-  let flags = document.getElementById('flags').value;
-  
-  document.getElementById('regexResult').textContent = "/" + pattern + "/" + flags;
-  return { pattern, flags };
+
+  let regex = "\\b" + parts.join('') + "\\b";
+  document.getElementById('regexOutput').textContent = regex;
+  return new RegExp(regex, "i");
 }
 
-function testRegex() {
-  let { pattern, flags } = generateRegex();
-  let testText = document.getElementById('testText').value.split(/\n/);
-  let output = "";
-  
-  try {
-    let re = new RegExp(pattern, flags);
-    for (let line of testText) {
-      if (!line.trim()) continue;
-      let m = re.exec(line);
-      if (m) {
-        output += "✔ " + line + "\n";
-        if (m.groups) {
-          for (let [k,v] of Object.entries(m.groups)) {
-            output += "  " + k + ": " + v + "\n";
-          }
-        }
-      } else {
-        output += "✘ " + line + "\n";
-      }
+function testChattyRegex() {
+  let re = generateChattyRegex();
+  let lines = document.getElementById('testText').value.split(/\n/);
+  let out = "";
+
+  if (!re) return;
+
+  for (let line of lines) {
+    if (!line.trim()) continue;
+    if (re.test(line)) {
+      out += "✔ " + line + "\n";
+    } else {
+      out += "✘ " + line + "\n";
     }
-  } catch (e) {
-    output = "Ungültige Regex: " + e.message;
   }
-  
-  document.getElementById('testResult').textContent = output;
+
+  document.getElementById('testResult').textContent = out || "Keine Eingabe";
 }
 </script>
 </body>
 </html>
+
 
