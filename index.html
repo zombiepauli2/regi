@@ -96,29 +96,24 @@ button.bot-button.active {
 </div>
 
 <script>
-// Standard-Bot
 let currentBot = 'chatty';
 
-// Buchstabenvarianten je Bot
+// Buchstabenvarianten je Bot inkl. Zahlen (Leetspeak)
 const botVariants = {
-  chatty: { a:'a4', i:'iye1', o:'oö0', e:'e3', s:'s5', t:'t7' },
-  fossabot: { a:'a4', i:'i1', o:'o0', e:'e3', s:'s$', t:'t+' },
-  nightbot: { a:'a@4', i:'i1!', o:'o0', e:'e3', s:'s$', t:'t7' }
+  chatty: { a:'a4', i:'iye1', o:'oö0', e:'e3', s:'s5', t:'t7', b:'b8', d:'d' },
+  fossabot: { a:'a4', i:'i1', o:'o0', e:'e3', s:'s$', t:'t+', b:'b8', d:'d' },
+  nightbot: { a:'a@4', i:'i1!', o:'o0', e:'e3', s:'s$', t:'t7', b:'b8', d:'d' }
 };
 
-// Bot auswählen und optisch markieren
+// Bot auswählen und aktiv markieren
 function selectBot(botName) {
   currentBot = botName;
-  
-  // Alle Buttons deaktivieren
   document.querySelectorAll('.bot-button').forEach(btn => btn.classList.remove('active'));
-  // Gewählten Button aktivieren
   document.getElementById('bot-' + botName).classList.add('active');
-
   generateChattyRegex();
 }
 
-// Regex generieren
+// Regex generieren mit Unterstützung für doppelte Buchstaben
 function generateChattyRegex() {
   const word = document.getElementById('wordInput').value.trim().toLowerCase();
   const minChars = parseInt(document.getElementById('minCharsInput').value) || 1;
@@ -134,10 +129,14 @@ function generateChattyRegex() {
     let ch = word[i];
     let v = variants[ch] || ch;
 
+    // Doppelte Buchstaben erlauben, [v]{1,2}
+    let pattern = `[${v}]{1,2}[\\W_]*?`;
+
     if (i < minChars) {
-      parts.push(`[${v}][\\W_]*?`);
+      parts.push(pattern);
     } else {
-      parts.push(`([${v}][\\W_]*?)?`);
+      // optional nach minChars
+      parts.push(`(${pattern})?`);
     }
   }
 
@@ -170,6 +169,7 @@ function testChattyRegex() {
 </script>
 </body>
 </html>
+
 
 
 
