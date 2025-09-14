@@ -3,172 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regex Generator mit Bot-Styles</title>
+<title>Twitch Regex Tool</title>
 <style>
-:root {
-  --bg: #0e0e10;
-  --card: #18181b;
-  --text: #e5e5e5;
-  --accent: #9146ff;
-  --accent-active: #6a1eff;
-  --border: #2a2a2d;
-  --input: #1f1f23;
-}
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  padding: 20px;
-}
-h1 { color: var(--accent); }
-.container { max-width: 700px; margin: 0 auto; }
-.card {
-  background: var(--card);
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-}
-label { display: block; margin: 10px 0 5px; font-weight: bold; }
-input[type="text"], input[type="number"], textarea {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--input);
-  color: var(--text);
-}
-button {
-  background: var(--accent);
-  border: none;
-  padding: 6px 12px;
-  color: white;
-  border-radius: 6px;
-  margin: 5px 5px 5px 0;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-button.bot-button {
-  padding: 4px 10px;
-  font-size: 0.85rem;
-}
-button.bot-button.active {
-  background: var(--accent-active);
-}
-.result {
-  background: #111;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 10px;
-  font-family: monospace;
-  white-space: pre-wrap;
-  border: 1px solid var(--border);
-}
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #0d0d0d;
+    color: #f5f5f5;
+  }
+  h1 {
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  .display-box {
+    font-family: monospace;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 700px;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+  }
+  .label {
+    flex: 0 0 auto;
+    color: #ffa733;
+    font-weight: bold;
+  }
+  .content {
+    flex: 1 1 auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .display-box:hover {
+    background: rgba(255, 165, 0, 0.2);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+    max-width: 700px;
+    width: 100%;
+    margin: 25px 0;
+  }
+  .box {
+    padding: 10px;
+    text-align: center;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .box:hover {
+    background: rgba(255, 165, 0, 0.3);
+    transform: scale(1.05);
+  }
+  .toggle {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 6px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 5px;
+    color: #fff;
+  }
+  .toggle.active {
+    background: rgba(255, 165, 0, 0.8);
+  }
+  .controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+  }
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #ff9800;
+    color: #111;
+    font-weight: bold;
+    transition: 0.2s;
+    text-transform: uppercase;
+  }
+  button:hover {
+    background: #ffa733;
+  }
+  .chatty-box {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #ff9800;
+    color: #ff9800;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+  }
+  .chatty-box.active {
+    background: #ff9800;
+    color: #111;
+  }
+  .watermark {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.85rem;
+    color: rgba(200, 200, 200, 0.5);
+    font-family: monospace;
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Regex Generator mit Bot-Styles</h1>
+<h1>Twitch Regex Tool</h1>
 
-  <div class="card">
-    <label>Bot auswählen:</label>
-    <button class="bot-button active" id="bot-chatty" onclick="selectBot('chatty')">Chatty</button>
-    <button class="bot-button" id="bot-fossabot" onclick="selectBot('fossabot')">Fossabot</button>
-    <button class="bot-button" id="bot-nightbot" onclick="selectBot('nightbot')">Nightbot</button>
-
-    <label>Wort eingeben:</label>
-    <input type="text" id="wordInput" placeholder="z.B. bastard">
-
-    <label>Ab wie vielen Buchstaben matchen? (minChars):</label>
-    <input type="number" id="minCharsInput" value="4" min="1" max="20">
-
-    <button onclick="generateChattyRegex()">Regex generieren</button>
-    <div class="result" id="regexOutput"></div>
-  </div>
-
-  <div class="card">
-    <label>Testtext:</label>
-    <textarea id="testText" placeholder="Hier Testnachrichten einfügen..."></textarea>
-    <button onclick="testChattyRegex()">Regex testen</button>
-    <div class="result" id="testResult"></div>
-  </div>
+<div class="display-box" id="wordDisplay">
+  <span class="label">Wort:</span>
+  <span class="content" id="wordContent"></span>
+</div>
+<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
+  <span class="label">Regex:</span>
+  <span class="content" id="regexContent"></span>
 </div>
 
-<script>
-let currentBot = 'chatty';
+<div class="grid" id="grid"></div>
 
-// Buchstabenvarianten je Bot inkl. Zahlen (Leetspeak)
-const botVariants = {
-  chatty: { a:'a4', i:'iye1', o:'oö0', e:'e3', s:'s5', t:'t7', b:'b8', d:'d' },
-  fossabot: { a:'a4', i:'i1', o:'o0', e:'e3', s:'s$', t:'t+', b:'b8', d:'d' },
-  nightbot: { a:'a@4', i:'i1!', o:'o0', e:'e3', s:'s$', t:'t7', b:'b8', d:'d' }
+<div class="controls">
+  <button id="clearBtn">CLEAR</button>
+  <button id="regexTestBtn">REGEX TESTEN</button>
+</div>
+
+<div class="chatty-box" id="chattyToggle">CHATTY</div>
+
+<div class="watermark">by rewins</div>
+
+<script>
+const regexMap = {
+  a: "[aA@4äÄàáâãåĀ#*]",
+  b: "[bB8ßẞ#*]",
+  c: "[cC(ķčćç¢©#*]",
+  d: "[dDÐďđ#*]",
+  e: "[eE3€èéêëě#*]",
+  f: "[fFƒ#*]",
+  g: "[gG6ɢ9#*]",
+  h: "[hH#*]",
+  i: "[iI1!|ìíîïįī#*]",
+  j: "[jJ#*]",
+  k: "[kKκ#*]",
+  l: "[lL1!|ł#*]",
+  m: "[mM#*]",
+  n: "[nNñńňņ#*]",
+  o: "[oO0öÖóòôõø¤°#*]",
+  p: "[pPρ¶þ#*]",
+  q: "[qQ9#*]",
+  r: "[rRʁЯ®#*]",
+  s: "[sS5$šśş§ßẞ#*]",
+  t: "[tT7†ŧ#*]",
+  u: "[uUúùûüÜūµ#*]",
+  v: "[vV\\/#!*]",
+  w: "[wWvvωŴ#*]",
+  x: "[xX%×χ#*]",
+  y: "[yY¥ýÿ#*]",
+  z: "[zZ2žźżʒ#*]",
+  ä: "[äA@4aA#*]",
+  ö: "[öÖoO#*]",
+  ü: "[üÜuU#*]",
+  ß: "[ßẞ5$sS#*]"
 };
 
-// Bot auswählen und aktiv markieren
-function selectBot(botName) {
-  currentBot = botName;
-  document.querySelectorAll('.bot-button').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('bot-' + botName).classList.add('active');
-  generateChattyRegex();
+const grid = document.getElementById("grid");
+const wordContent = document.getElementById("wordContent");
+const regexContent = document.getElementById("regexContent");
+const clearBtn = document.getElementById("clearBtn");
+const regexTestBtn = document.getElementById("regexTestBtn");
+const chattyToggle = document.getElementById("chattyToggle");
+
+let currentWord = "";
+let currentRegex = "";
+let chattyMode = false;
+
+function updateDisplay() {
+  let prefix = chattyMode ? "config:any regi:" : "";
+  wordContent.textContent = currentWord;
+  regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 }
 
-// Regex generieren mit Unterstützung für doppelte Buchstaben
-function generateChattyRegex() {
-  const word = document.getElementById('wordInput').value.trim().toLowerCase();
-  const minChars = parseInt(document.getElementById('minCharsInput').value) || 1;
-  if (!word) {
-    document.getElementById('regexOutput').textContent = "Bitte ein Wort eingeben!";
-    return null;
-  }
+// Boxen erstellen
+Object.keys(regexMap).forEach(letter => {
+  const container = document.createElement("div");
+  container.className = "box";
 
-  let parts = [];
-  const variants = botVariants[currentBot];
+  const span = document.createElement("span");
+  span.textContent = letter;
 
-  for (let i = 0; i < word.length; i++) {
-    let ch = word[i];
-    let v = variants[ch] || ch;
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = "?";
+  toggleBtn.className = "toggle";
+  toggleBtn.dataset.optional = "false";
 
-    // Doppelte Buchstaben erlauben, [v]{1,2}
-    let pattern = `[${v}]{1,2}[\\W_]*?`;
+  container.appendChild(span);
+  container.appendChild(toggleBtn);
 
-    if (i < minChars) {
-      parts.push(pattern);
-    } else {
-      // optional nach minChars
-      parts.push(`(${pattern})?`);
+  container.onclick = (e) => {
+    if (e.target === toggleBtn) return;
+    currentWord += letter;
+    const isOptional = toggleBtn.dataset.optional === "true";
+    currentRegex += isOptional
+      ? `(${regexMap[letter]}*?)`
+      : `${regexMap[letter]}+[\\W_#*]*`;
+    updateDisplay();
+    if (isOptional) {
+      toggleBtn.dataset.optional = "false";
+      toggleBtn.classList.remove("active");
     }
+  };
+
+  toggleBtn.onclick = (e) => {
+    e.stopPropagation();
+    toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
+    toggleBtn.classList.toggle("active");
+  };
+
+  grid.appendChild(container);
+});
+
+// Regex klickbar = Kopieren
+document.getElementById("regexDisplay").onclick = async () => {
+  const regexText = regexContent.textContent;
+  await navigator.clipboard.writeText(regexText);
+  regexContent.textContent = "Kopiert!";
+  setTimeout(updateDisplay, 1200);
+};
+
+// Clear
+clearBtn.onclick = () => {
+  currentWord = "";
+  currentRegex = "";
+  updateDisplay();
+};
+
+// regex101 öffnen (ohne config:any regi:)
+regexTestBtn.onclick = () => {
+  let regexText = regexContent.textContent;
+  if (regexText.startsWith("config:any regi:")) {
+    regexText = regexText.replace("config:any regi:", "");
   }
+  const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
+  window.open(url, "_blank");
+};
 
-  const regexStr = "\\b" + parts.join('') + "\\b";
-  document.getElementById('regexOutput').textContent = regexStr;
+// Chatty Toggle
+chattyToggle.onclick = () => {
+  chattyMode = !chattyMode;
+  chattyToggle.classList.toggle("active", chattyMode);
+  updateDisplay();
+};
 
-  try {
-    return new RegExp(regexStr, "i");
-  } catch (e) {
-    document.getElementById('regexOutput').textContent = "Ungültige Regex: " + e.message;
-    return null;
-  }
-}
-
-// Regex testen
-function testChattyRegex() {
-  const re = generateChattyRegex();
-  if (!re) return;
-
-  const lines = document.getElementById('testText').value.split(/\n/);
-  let output = "";
-
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    output += re.test(line) ? "✔ " + line + "\n" : "✘ " + line + "\n";
-  }
-
-  document.getElementById('testResult').textContent = output || "Keine Eingabe";
-}
+// Initial
+updateDisplay();
 </script>
 </body>
 </html>
+
+
 
 
 
