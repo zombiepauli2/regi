@@ -173,9 +173,8 @@ loginBtn.onclick = () => {
   const username = usernameInput.value.trim();
   const license = licenseInput.value.trim();
   if(username === VALID_USERNAME && license === VALID_LICENSE){
-    loginContainer.style.display = "none";
-    // Harmloser Prank: Rickroll
-    window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
+    // Vollständige Weiterleitung nach Login auf harmlosen Prank
+    window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; 
   } else {
     loginError.textContent = "Ungültiger Benutzername oder Lizenzkey!";
   }
@@ -278,6 +277,7 @@ updateDisplay();
 </script>
 </body>
 </html>
+
 
 
 
