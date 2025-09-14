@@ -10,6 +10,7 @@
   --card: #18181b;
   --text: #e5e5e5;
   --accent: #9146ff;
+  --accent-active: #6a1eff;
   --border: #2a2a2d;
   --input: #1f1f23;
 }
@@ -52,6 +53,9 @@ button.bot-button {
   padding: 4px 10px;
   font-size: 0.85rem;
 }
+button.bot-button.active {
+  background: var(--accent-active);
+}
 .result {
   background: #111;
   padding: 10px;
@@ -69,9 +73,9 @@ button.bot-button {
 
   <div class="card">
     <label>Bot auswählen:</label>
-    <button class="bot-button" onclick="selectBot('chatty')">Chatty</button>
-    <button class="bot-button" onclick="selectBot('fossabot')">Fossabot</button>
-    <button class="bot-button" onclick="selectBot('nightbot')">Nightbot</button>
+    <button class="bot-button active" id="bot-chatty" onclick="selectBot('chatty')">Chatty</button>
+    <button class="bot-button" id="bot-fossabot" onclick="selectBot('fossabot')">Fossabot</button>
+    <button class="bot-button" id="bot-nightbot" onclick="selectBot('nightbot')">Nightbot</button>
 
     <label>Wort eingeben:</label>
     <input type="text" id="wordInput" placeholder="z.B. bastard">
@@ -102,10 +106,16 @@ const botVariants = {
   nightbot: { a:'a@4', i:'i1!', o:'o0', e:'e3', s:'s$', t:'t7' }
 };
 
-// Bot auswählen
+// Bot auswählen und optisch markieren
 function selectBot(botName) {
   currentBot = botName;
-  generateChattyRegex(); // Regex sofort aktualisieren
+  
+  // Alle Buttons deaktivieren
+  document.querySelectorAll('.bot-button').forEach(btn => btn.classList.remove('active'));
+  // Gewählten Button aktivieren
+  document.getElementById('bot-' + botName).classList.add('active');
+
+  generateChattyRegex();
 }
 
 // Regex generieren
@@ -125,10 +135,8 @@ function generateChattyRegex() {
     let v = variants[ch] || ch;
 
     if (i < minChars) {
-      // Die ersten minChars Buchstaben müssen erscheinen
       parts.push(`[${v}][\\W_]*?`);
     } else {
-      // Rest optional, damit schon ab minChars erkannt wird
       parts.push(`([${v}][\\W_]*?)?`);
     }
   }
@@ -162,6 +170,7 @@ function testChattyRegex() {
 </script>
 </body>
 </html>
+
 
 
 
