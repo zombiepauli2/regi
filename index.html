@@ -13,6 +13,8 @@
     padding: 20px;
     background: #0d0d0d;
     color: #f5f5f5;
+    height: 100vh;
+    margin: 0;
   }
   h1 {
     margin-bottom: 20px;
@@ -67,11 +69,11 @@
     align-items: center;
   }
   .box:hover {
-    background: rgba(128, 0, 128, 0.3); /* lila hover */
+    background: rgba(128, 0, 128, 0.3);
     transform: scale(1.05);
   }
   .toggle {
-    background: rgba(255,255,255,0.2);
+    background: #800080;
     border: none;
     border-radius: 6px;
     padding: 2px 6px;
@@ -79,10 +81,9 @@
     font-size: 0.9rem;
     margin-left: 5px;
     color: #fff;
-    background-color: #800080; /* lila */
   }
   .toggle.active {
-    background: #d580d5; /* helleres Lila wenn aktiv */
+    background: #d580d5;
   }
   .controls {
     margin-top: 15px;
@@ -94,14 +95,14 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    background: #800080; /* lila */
+    background: #800080;
     color: #fff;
     font-weight: bold;
     transition: 0.2s;
     text-transform: uppercase;
   }
   button:hover {
-    background: #d580d5; /* helleres lila beim hover */
+    background: #d580d5;
   }
   .chatty-box {
     margin-top: 15px;
@@ -121,9 +122,50 @@
     background: #800080;
     color: #fff;
   }
+
+  /* Login Overlay */
+  #loginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  #loginOverlay input {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: none;
+    width: 250px;
+    font-size: 1rem;
+  }
+  #loginOverlay button {
+    margin-top: 10px;
+    width: 270px;
+  }
+  #loginError {
+    color: red;
+    margin-top: 8px;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+  <h2>Login</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="licenseKey" placeholder="Lizenzkey">
+  <button id="loginBtn">Login</button>
+  <div id="loginError"></div>
+</div>
+
 <h1>Twitch Regex Tool</h1>
 
 <div class="display-box" id="wordDisplay">
@@ -145,6 +187,27 @@
 <div class="chatty-box" id="chattyToggle">CHATTY</div>
 
 <script>
+/* -------- Login -------- */
+const VALID_USERNAME = "testuser"; // hier Benutzername einstellen
+const VALID_LICENSE = "123456";   // hier Lizenzkey einstellen
+
+const loginOverlay = document.getElementById("loginOverlay");
+const loginBtn = document.getElementById("loginBtn");
+const usernameInput = document.getElementById("username");
+const licenseInput = document.getElementById("licenseKey");
+const loginError = document.getElementById("loginError");
+
+loginBtn.onclick = () => {
+  const username = usernameInput.value.trim();
+  const license = licenseInput.value.trim();
+  if(username === VALID_USERNAME && license === VALID_LICENSE){
+    loginOverlay.style.display = "none";
+  } else {
+    loginError.textContent = "Ungültiger Benutzername oder Lizenzkey!";
+  }
+};
+
+/* -------- Regex Tool -------- */
 const regexMap = {
   a: "[aA@4äÄàáâãåĀ#*]", b: "[bB8ßẞ#*]", c: "[cC(ķčćç¢©#*]", d: "[dDÐďđ#*]",
   e: "[eE3€èéêëě#*]", f: "[fFƒ#*]", g: "[gG6ɢ9#*]", h: "[hH#*]",
@@ -243,6 +306,7 @@ updateDisplay();
 </script>
 </body>
 </html>
+
 
 
 
