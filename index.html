@@ -1,113 +1,35 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chatty-Style Regex Generator</title>
-<style>
-:root {
-  --bg: #0e0e10;
-  --card: #18181b;
-  --text: #e5e5e5;
-  --accent: #9146ff;
-  --border: #2a2a2d;
-  --input: #1f1f23;
-}
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  padding: 20px;
-}
-h1 { color: var(--accent); }
-.container { max-width: 700px; margin: 0 auto; }
-.card {
-  background: var(--card);
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-}
-label { display: block; margin: 10px 0 5px; font-weight: bold; }
-input[type="text"], textarea {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--input);
-  color: var(--text);
-}
-button {
-  background: var(--accent);
-  border: none;
-  padding: 10px 16px;
-  color: white;
-  border-radius: 6px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-.result {
-  background: #111;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 10px;
-  font-family: monospace;
-  white-space: pre-wrap;
-  border: 1px solid var(--border);
-}
-</style>
-</head>
-<body>
-<div class="container">
-  <h1>Chatty-Style Regex Generator</h1>
-
-  <div class="card">
-    <label>Wort eingeben:</label>
-    <input type="text" id="wordInput" placeholder="z.B. dominik">
-
-    <button onclick="generateChattyRegex()">Regex generieren</button>
-    <div class="result" id="regexOutput"></div>
-  </div>
-
-  <div class="card">
-    <label>Testtext:</label>
-    <textarea id="testText" placeholder="Hier Testnachrichten einfügen..."></textarea>
-    <button onclick="testChattyRegex()">Regex testen</button>
-    <div class="result" id="testResult"></div>
-  </div>
-</div>
-
-<script>
 function generateChattyRegex() {
-  const word = document.getElementById('wordInput').value.trim();
+  const word = document.getElementById('wordInput').value.trim().toLowerCase();
   if (!word) {
     document.getElementById('regexOutput').textContent = "Bitte ein Wort eingeben!";
     return null;
   }
 
+  const minChars = 4; // Erst ab diesen Buchstaben matchen
   let parts = [];
+
   for (let i = 0; i < word.length; i++) {
-    let ch = word[i].toLowerCase();
+    let ch = word[i];
     let variants = ch;
 
-    // Buchstabenvarianten wie Chatty
+    // Typische Chatty-Varianten
     if (ch === 'o') variants = 'oö0';
     if (ch === 'i') variants = 'i|y|e|1';
     if (ch === 'a') variants = 'a4';
     if (ch === 'e') variants = 'e3';
 
-    if (i === 0) {
-      // erstes Zeichen muss matchen
+    if (i < minChars) {
+      // die ersten minChars Buchstaben müssen matchen
       parts.push(`([${variants}][\\W_]*?)+`);
     } else {
-      // ab dem 2. Buchstaben optional, schon früh matchen
+      // Rest optional
       parts.push(`([${variants}][\\W_]*?)*`);
     }
   }
 
   const regexStr = "\\b" + parts.join('') + "\\b";
   document.getElementById('regexOutput').textContent = regexStr;
+
   try {
     return new RegExp(regexStr, "i");
   } catch (e) {
@@ -116,21 +38,4 @@ function generateChattyRegex() {
   }
 }
 
-function testChattyRegex() {
-  const re = generateChattyRegex();
-  if (!re) return;
-
-  const lines = document.getElementById('testText').value.split(/\n/);
-  let output = "";
-
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    output += re.test(line) ? "✔ " + line + "\n" : "✘ " + line + "\n";
-  }
-
-  document.getElementById('testResult').textContent = output || "Keine Eingabe";
-}
-</script>
-</body>
-</html>
 
