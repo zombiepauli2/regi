@@ -7,88 +7,34 @@
 <style>
   body {
     font-family: sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #0d0d0d url('81e9787f-575a-4dfc-8433-0248fb7f9d5f.png') no-repeat center center;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  /* Login Overlay */
-  #loginContainer {
-    background: rgba(0,0,0,0.85);
-    padding: 30px;
-    border-radius: 16px;
-    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  #loginContainer input {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 8px;
-    border: none;
-    width: 250px;
-    font-size: 1rem;
-  }
-
-  #loginContainer button {
-    margin-top: 10px;
-    width: 270px;
-    padding: 10px;
-    background: #800080;
-    border: none;
-    color: #fff;
-    font-weight: bold;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  #loginContainer button:hover { background: #d580d5; }
-
-  #loginError {
-    color: orange;
-    margin-top: 8px;
-    font-weight: bold;
-  }
-
-  /* App Container */
-  #appContainer {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 800px;
     padding: 20px;
-    background: rgba(13,13,13,0.95);
-    border-radius: 16px;
+    background: #0d0d0d;
+    color: #f5f5f5;
   }
-
-  h1 { color: #fff; margin-bottom: 20px; }
+  h1 { margin-bottom: 20px; color: #fff; }
   .display-box {
     font-family: monospace;
     margin-bottom: 10px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     padding: 10px;
     border-radius: 10px;
     width: 100%;
+    max-width: 700px;
     cursor: pointer;
     display: flex;
     gap: 8px;
   }
   .label { flex: 0 0 auto; color: #ffa733; font-weight: bold; }
   .content { flex: 1 1 auto; white-space: pre-wrap; word-wrap: break-word; }
-  .display-box:hover { background: rgba(255,165,0,0.2); }
-
+  .display-box:hover { background: rgba(255, 165, 0, 0.2); }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 12px;
+    max-width: 700px;
     width: 100%;
     margin: 25px 0;
   }
@@ -96,8 +42,9 @@
     padding: 10px;
     text-align: center;
     border-radius: 16px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     font-weight: bold;
     cursor: pointer;
@@ -106,10 +53,9 @@
     justify-content: space-between;
     align-items: center;
   }
-  .box:hover { background: rgba(128,0,128,0.3); transform: scale(1.05); }
-
+  .box:hover { background: rgba(255, 165, 0, 0.3); transform: scale(1.05); }
   .toggle {
-    background: #800080;
+    background: rgba(255,255,255,0.2);
     border: none;
     border-radius: 6px;
     padding: 2px 6px;
@@ -118,30 +64,75 @@
     margin-left: 5px;
     color: #fff;
   }
-  .toggle.active { background: #d580d5; }
-
+  .toggle.active { background: rgba(255, 165, 0, 0.8); }
   .controls { margin-top: 15px; display: flex; gap: 10px; }
-  .controls button { text-transform: uppercase; }
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #ff9800;
+    color: #111;
+    font-weight: bold;
+    transition: 0.2s;
+    text-transform: uppercase;
+  }
+  button:hover { background: #ffa733; }
   .chatty-box {
     margin-top: 15px;
     padding: 12px;
     border-radius: 10px;
-    border: 2px solid #800080;
-    color: #800080;
+    border: 2px solid #ff9800;
+    color: #ff9800;
     font-weight: bold;
     text-align: center;
     width: 100%;
+    max-width: 700px;
     cursor: pointer;
     transition: 0.2s;
     text-transform: uppercase;
   }
-  .chatty-box.active { background: #800080; color: #fff; }
+  .chatty-box.active { background: #ff9800; color: #111; }
+  .watermark { position: fixed; bottom: 10px; left: 10px; font-size: 0.85rem; color: rgba(200, 200, 200, 0.5); font-family: monospace; }
 
+  /* Login Overlay */
+  #loginContainer {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  #loginContainer input {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: none;
+    width: 250px;
+    font-size: 1rem;
+  }
+  #loginContainer button {
+    margin-top: 10px;
+    width: 270px;
+    padding: 10px;
+    background: #ff9800;
+    border: none;
+    color: #111;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  #loginContainer button:hover { background: #ffa733; }
+  #loginError { color: orange; margin-top: 8px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN Overlay -->
+<!-- Login -->
 <div id="loginContainer">
   <h2>Login</h2>
   <input type="text" id="username" placeholder="Username">
@@ -150,27 +141,22 @@
   <div id="loginError"></div>
 </div>
 
-<!-- APP -->
-<div id="appContainer">
-  <h1>Twitch Regex Tool</h1>
-  <div class="display-box" id="wordDisplay">
-    <span class="label">Wort:</span>
-    <span class="content" id="wordContent"></span>
-  </div>
-  <div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
-    <span class="label">Regex:</span>
-    <span class="content" id="regexContent"></span>
-  </div>
-
-  <div class="grid" id="grid"></div>
-
-  <div class="controls">
-    <button id="clearBtn">CLEAR</button>
-    <button id="regexTestBtn">REGEX TESTEN</button>
-  </div>
-
-  <div class="chatty-box" id="chattyToggle">CHATTY</div>
+<h1>Twitch Regex Tool</h1>
+<div class="display-box" id="wordDisplay">
+  <span class="label">Wort:</span>
+  <span class="content" id="wordContent"></span>
 </div>
+<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
+  <span class="label">Regex:</span>
+  <span class="content" id="regexContent"></span>
+</div>
+<div class="grid" id="grid"></div>
+<div class="controls">
+  <button id="clearBtn">CLEAR</button>
+  <button id="regexTestBtn">REGEX TESTEN</button>
+</div>
+<div class="chatty-box" id="chattyToggle">CHATTY</div>
+<div class="watermark">by rewins</div>
 
 <script>
 /* -------- Login -------- */
@@ -178,7 +164,6 @@ const VALID_USERNAME = "LaetFx";
 const VALID_LICENSE = "liedliebtalteomas";
 
 const loginContainer = document.getElementById("loginContainer");
-const appContainer = document.getElementById("appContainer");
 const loginBtn = document.getElementById("loginBtn");
 const usernameInput = document.getElementById("username");
 const licenseInput = document.getElementById("licenseKey");
@@ -189,7 +174,6 @@ loginBtn.onclick = () => {
   const license = licenseInput.value.trim();
   if(username === VALID_USERNAME && license === VALID_LICENSE){
     loginContainer.style.display = "none";
-    appContainer.style.display = "flex";
   } else {
     loginError.textContent = "Ungültiger Benutzername oder Lizenzkey!";
   }
@@ -243,9 +227,7 @@ Object.keys(regexMap).forEach(letter => {
     if (e.target === toggleBtn) return;
     currentWord += letter;
     const isOptional = toggleBtn.dataset.optional === "true";
-    currentRegex += isOptional
-      ? `(${regexMap[letter]}*?)`
-      : `${regexMap[letter]}+[\\W_#*]*`;
+    currentRegex += isOptional ? `(${regexMap[letter]}*?)` : `${regexMap[letter]}+[\\W_#*]*`;
     updateDisplay();
     if (isOptional) {
       toggleBtn.dataset.optional = "false";
@@ -294,6 +276,7 @@ updateDisplay();
 </script>
 </body>
 </html>
+
 
 
 
