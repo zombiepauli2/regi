@@ -65,7 +65,6 @@ button {
   <div class="card">
     <label>Wort eingeben:</label>
     <input type="text" id="wordInput" placeholder="z.B. bastard">
-
     <button onclick="generateChattyRegex()">Regex generieren</button>
     <div class="result" id="regexOutput"></div>
   </div>
@@ -86,7 +85,7 @@ function generateChattyRegex() {
     return null;
   }
 
-  const minChars = 4; // erst ab diesen Buchstaben matchen
+  const minChars = 4; // Erst ab diesen Buchstaben matchen
   let parts = [];
 
   for (let i = 0; i < word.length; i++) {
@@ -100,9 +99,11 @@ function generateChattyRegex() {
     if (ch === 'e') variants = 'e3';
 
     if (i < minChars) {
+      // Muss matchen
       parts.push(`[${variants}][\\W_]*?`);
     } else {
-      parts.push(`[${variants}][\\W_]*?` + '?'); // optional ab minChars
+      // Optional ab minChars
+      parts.push(`[${variants}][\\W_]*?`);
     }
   }
 
@@ -134,6 +135,7 @@ function testChattyRegex() {
 </script>
 </body>
 </html>
+
 
 
 
