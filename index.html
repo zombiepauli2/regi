@@ -30,7 +30,7 @@ h1 { color: var(--accent); }
   border: 1px solid var(--border);
 }
 label { display: block; margin: 10px 0 5px; font-weight: bold; }
-input[type="text"], textarea {
+input[type="text"], input[type="number"], textarea {
   width: 100%;
   padding: 8px;
   border-radius: 6px;
@@ -65,6 +65,10 @@ button {
   <div class="card">
     <label>Wort eingeben:</label>
     <input type="text" id="wordInput" placeholder="z.B. bastard">
+
+    <label>Ab wie vielen Buchstaben matchen? (minChars):</label>
+    <input type="number" id="minCharsInput" value="4" min="1" max="20">
+
     <button onclick="generateChattyRegex()">Regex generieren</button>
     <div class="result" id="regexOutput"></div>
   </div>
@@ -80,30 +84,31 @@ button {
 <script>
 function generateChattyRegex() {
   const word = document.getElementById('wordInput').value.trim().toLowerCase();
+  const minChars = parseInt(document.getElementById('minCharsInput').value) || 1;
+
   if (!word) {
     document.getElementById('regexOutput').textContent = "Bitte ein Wort eingeben!";
     return null;
   }
 
-  const minChars = 4; // Erst ab diesen Buchstaben matchen
   let parts = [];
 
   for (let i = 0; i < word.length; i++) {
     let ch = word[i];
     let variants = ch;
 
-    // Chatty-Style Buchstabenvarianten
+    // Chatty-Style Varianten
     if (ch === 'o') variants = 'oö0';
     if (ch === 'i') variants = 'iye1';
     if (ch === 'a') variants = 'a4';
     if (ch === 'e') variants = 'e3';
 
     if (i < minChars) {
-      // Muss matchen
+      // Die ersten minChars Buchstaben müssen erscheinen
       parts.push(`[${variants}][\\W_]*?`);
     } else {
-      // Optional ab minChars
-      parts.push(`[${variants}][\\W_]*?`);
+      // Rest optional, damit schon ab minChars erkannt wird
+      parts.push(`([${variants}][\\W_]*?)?`);
     }
   }
 
@@ -135,6 +140,7 @@ function testChattyRegex() {
 </script>
 </body>
 </html>
+
 
 
 
