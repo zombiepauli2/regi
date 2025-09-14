@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Twitch Regex Tester — Presets für Chatty, Fossabot & Co.</title>
+<style>
+  :root{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;line-height:1.4}
+  body{max-width:980px;margin:28px auto;padding:20px;background:#fbfbfd;color:#0b1020}
+  h1{font-size:1.6rem;margin:0 0 8px}
+  p.lead{margin:0 0 18px;color:#3b4150}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+  .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(12,18,36,0.06)}
+  label{display:block;font-weight:600;margin-bottom:6px}
+  select,input,textarea,button{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid #e3e7ee}
+  textarea{min-height:140px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .row{display:flex;gap:8px}
+  .small{font-size:0.9rem;color:#565e72}
+  .result{margin-top:12px;padding:10px;border-radius:8px;background:#0f1724;color:#e6f0ff;white-space:pre-wrap}
+  .matches{margin-top:10px}
+  .match{padding:8px;border-radius:8px;background:#f1f7ff;border:1px solid #d9e6ff;margin-bottom:8px}
+  .group{font-family:ui-monospace,monospace;background:#fff;padding:6px;border-radius:6px;border:1px solid #e6eefc;display:inline-block;margin-right:8px;margin-top:6px}
+  .meta{font-size:0.9rem;color:#6b7280;margin-top:6px}
+  .btn{background:#0b5cff;color:#fff;border:none;padding:9px;border-radius:8px;cursor:pointer}
+  .btn.outline{background:#fff;border:1px solid #d1d6e4;color:#0b1020}
+  footer{margin-top:18px;text-align:center;color:#7b8399;font-size:0.9rem}
+  .explain{font-size:0.95rem;color:#233; margin-top:10px}
+  .inline{display:inline-block;width:auto}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <h1>Twitch Regex Tester</h1>
+  <p class="lead">Presets für Chatty, Fossabot, Nightbot, Moobot & generische Twitch-IRC Logs. Wähle ein Preset oder füge eine eigene Regex ein. Die Seite zeigt gefundene Gruppen (named groups) und markiert Treffer.</p>
+
+  <div class="grid">
+    <div class="card">
+      <label for="preset">Preset auswählen</label>
+      <select id="preset">
+        <option value="chatty">Chatty (Standard-Log)</option>
+        <option value="twitchirc">Twitch IRC (zeitstempel username: message)</option>
+        <option value="fossabot">Fossabot (Beispiel-Format)</option>
+        <option value="nightbot">Nightbot (Beispiel-Format)</option>
+        <option value="moobot">Moobot (Beispiel-Format)</option>
+        <option value="custom">Eigenes Format</option>
+      </select>
+
+      <div style="margin-top:10px">
+        <label for="regex">Regex (JavaScript)</label>
+        <input id="regex" type="text" placeholder="z. B. ^\[(\d{2}:\d{2}:\d{2})\] &lt;([^&gt;]+)&gt; (.*)$">
+      </div>
+
+      <div style="margin-top:10px">
+        <label for="flags">Flags</label>
+        <input id="flags" type="text" value="gm" placeholder="z. B. gm">
+      </div>
+
+      <div style="margin-top:10px" class="row">
+        <button id="testBtn" class="btn">Testen</button>
+        <button id="copyBtn" class="btn outline" title="Regex kopieren">Kopieren</button>
+      </div>
+
+      <div class="meta">
+        Hinweis: Named capture groups (z.B. <code>?&lt;user&gt;</code>) werden unterstützt, wenn dein Browser JavaScript named groups unterstützt.
+      </div>
+
+      <div class="explain" id="presetExplain"></div>
+
+      <div style="margin-top:12px">
+        <label for="inputText">Beispiel- / Test-Text</label>
+        <textarea id="inputText" placeholder="Mehrere Zeilen hier einfügen — jede Zeile wird geprüft."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Presets & Beispiele</label>
+      <div style="font-size:0.95rem;color:#122">
+        <strong>Chatty</strong>
+        <div class="small">Format (häufig):</div>
+        <div class="small" style="margin-bottom:8px"><code>[17:23:45] &lt;SomeUser&gt; Hello chat!</code></div>
+
+        <strong>Fossabot (Beispiel)</strong>
+        <div class="small">Format (Beispiel):</div>
+        <div class="small" style="margin-bottom:8px"><code>2024-09-01 12:34:56 - SomeUser: !command args</code></div>
+
+        <strong>Twitch IRC (Standard)</strong>
+        <div class="small">Format (Beispiel):</div>
+        <div class="small" style="margin-bottom:8px"><code>12:34:56 SomeUser: Hello chat</code></div>
+
+        <strong>Nightbot / Moobot (Beispiele)</strong>
+        <div class="small">Oft ähnlich zu &quot;Username: message&quot; oder mit zusätzlichen Feldern.</div>
+      </div>
+
+      <hr style="margin:12px 0">
+
+      <label>Regex-Hilfsbuttons</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn outline" id="btnTime">Zeit-Group</button>
+        <button class="btn outline" id="btnUser">User-Group</button>
+        <button class="btn outline" id="btnMessage">Message-Group</button>
+      </div>
+
+      <div class="meta" style="margin-top:10px">
+        Buttons fügen häufig verwendete named groups in die Regex-Eingabe ein: <code>(?&lt;time&gt;...)</code>, <code>(?&lt;user&gt;...)</code>, <code>(?&lt;message&gt;...)</code>.
+      </div>
+
+      <div style="margin-top:12px">
+        <label>Letzte Treffer</label>
+        <div id="matches" class="matches"></div>
+        <pre id="rawResult" class="result" style="display:none"></pre>
+      </div>
+    </div>
+  </div>
+
+  <footer>Viel Erfolg — bei Bedarf kann ich die Presets an dein genaues Log-Format anpassen.</footer>
+
+<script>
+/* Presets mit regex, flags, beispieltext und erklärung */
+const PRESETS = {
+  chatty: {
+    regex: '^\\[(?<time>\\d{2}:\\d{2}:\\d{2})\\]\\s+<(?<user>[^>]+)>\\s(?<message>.*)$',
+    flags: 'gm',
+    example: `[17:23:45] <SomeUser> Hello chat!
+[17:23:47] <AnotherUser> Hallo!`
+    ,
+    explain: 'Chatty-Logs verwenden oft das Format: [HH:MM:SS] <username> message. Diese Regex extrahiert time, user und message als named groups.'
+  },
+  twitchirc: {
+    regex: '^(?<time>\\d{2}:\\d{2}:\\d{2})\\s+(?<user>[^:]+):\\s(?<message>.*)$',
+    flags: 'gm',
+    example: `12:34:56 SomeUser: Hello chat
+12:35:05 AnotherOne: !test`,
+    explain: 'Ein übliches, einfaches Twitch-IRC-Logformat: "HH:MM:SS Username: message".'
+  },
+  fossabot: {
+    // Beispiel-Format: "2024-09-01 12:34:56 - User: message"
+    regex: '^(?<date>\\d{4}-\\d{2}-\\d{2})\\s+(?<time>\\d{2}:\\d{2}:\\d{2})\\s+-\\s+(?<user>[^:]+):\\s(?<message>.*)$',
+    flags: 'gm',
+    example: `2024-09-01 12:34:56 - SomeUser: !song request
+2024-09-01 12:35:00 - ModUser: Moderation message`,
+    explain: 'Beispiel für Fossabot-artige Logs mit Datumsfeld. Extrahiert date, time, user, message.'
+  },
+  nightbot: {
+    regex: '^(?:\\[(?<time>\\d{2}:\\d{2}:\\d{2})\\]\\s*)?(?<user>[^:]+):\\s(?<message>.*)$',
+    flags: 'gm',
+    example: `[21:00:00] NightUser: !uptime
+OtherUser: Hallo!`,
+    explain: 'Flexibleres Pattern für Zeilen mit oder ohne Zeitstempel: user: message.'
+  },
+  moobot: {
+    regex: '^(?<user>[^\\s:]+)\\s+-\\s+\\[(?<time>\\d{2}:\\d{2}:\\d{2})\\]\\s+(?<message>.*)$',
+    flags: 'gm',
+    example: `SomeUser - [13:14:15] !command args
+Another - [13:15:00] Hallo`,
+    explain: 'Beispielhaftes Moobot-ähnliches Format: user - [HH:MM:SS] message'
+  },
+  custom: {
+    regex: '',
+    flags: 'gm',
+    example: `Gib hier eigene Log-Zeilen ein, die du mit deiner Regex parsen willst.`,
+    explain: 'Eigenes Format: trage deine Regex ein oder wähle ein anderes Preset.'
+  }
+};
+
+const presetSelect = document.getElementById('preset');
+const regexInput = document.getElementById('regex');
+const flagsInput = document.getElementById('flags');
+const inputText = document.getElementById('inputText');
+const testBtn = document.getElementById('testBtn');
+const matchesDiv = document.getElementById('matches');
+const rawResult = document.getElementById('rawResult');
+const explainDiv = document.getElementById('presetExplain');
+const copyBtn = document.getElementById('copyBtn');
+
+function loadPreset(key){
+  const p = PRESETS[key];
+  regexInput.value = p.regex;
+  flagsInput.value = p.flags || '';
+  inputText.value = p.example;
+  explainDiv.innerHTML = `<strong>Erklärung:</strong> ${p.explain}`;
+}
+
+presetSelect.addEventListener('change', ()=>loadPreset(presetSelect.value));
+loadPreset('chatty');
+
+testBtn.addEventListener('click', runTest);
+copyBtn.addEventListener('click', ()=> {
+  navigator.clipboard.writeText(regexInput.value).then(()=> {
+    copyBtn.textContent = 'Kopiert ✓';
+    setTimeout(()=> copyBtn.textContent = 'Kopieren',900);
+  }).catch(()=> alert('Kopieren fehlgeschlagen'));
+});
+
+/* Helper buttons */
+document.getElementById('btnTime').addEventListener('click', ()=>insertAtCursor('(?<time>\\d{2}:\\d{2}:\\d{2})'));
+document.getElementById('btnUser').addEventListener('click', ()=>insertAtCursor('(?<user>[^:\\s>]+)'));
+document.getElementById('btnMessage').addEventListener('click', ()=>insertAtCursor('(?<message>.*)'));
+
+function insertAtCursor(text){
+  const el = regexInput;
+  const start = el.selectionStart, end = el.selectionEnd;
+  el.value = el.value.slice(0,start) + text + el.value.slice(end);
+  el.focus();
+  el.selectionStart = start + text.length;
+  el.selectionEnd = start + text.length;
+}
+
+/* Run test: apply regex to each line, show groups */
+function runTest(){
+  matchesDiv.innerHTML = '';
+  rawResult.style.display = 'none';
+  const pattern = regexInput.value;
+  const flags = flagsInput.value || '';
+  const txt = inputText.value || '';
+  if(!pattern){
+    alert('Bitte eine Regex eintragen.');
+    return;
+  }
+
+  let re;
+  try {
+    re = new RegExp(pattern, flags);
+  } catch(e){
+    rawResult.style.display = 'block';
+    rawResult.textContent = 'Ungültige Regex: ' + e.message;
+    return;
+  }
+
+  // Wenn g oder m gesetzt, mache globale Suche über ganze input; sonst per Zeile
+  const lines = txt.split(/\r?\n/);
+  let any = false;
+  for(let i=0;i<lines.length;i++){
+    const line = lines[i];
+    if(!line) continue;
+    // we want to support both global matching and per-line matching
+    // We'll run re.exec in a loop if global flag set, else one test per line
+    if(flags.includes('g')){
+      // Reset lastIndex for safety
+      re.lastIndex = 0;
+      let m;
+      while((m = re.exec(line)) !== null){
+        any = true;
+        displayMatch(line, m, i+1);
+        if(m.index === re.lastIndex) re.lastIndex++; // avoid infinite loop for empty matches
+      }
+    } else {
+      const m = re.exec(line);
+      if(m){
+        any = true;
+        displayMatch(line, m, i+1);
+      }
+    }
+  }
+  if(!any){
+    matchesDiv.innerHTML = '<div class="match">Keine Treffer gefunden.</div>';
+  }
+}
+
+/* Display a single match with named groups if available */
+function displayMatch(line, match, lineNo){
+  const cont = document.createElement('div');
+  cont.className = 'match';
+  const title = document.createElement('div');
+  title.innerHTML = `<strong>Zeile ${lineNo} — Treffer bei Index ${match.index}</strong>`;
+  const snippet = document.createElement('div');
+  // highlight matched substring in line
+  const start = match.index || 0;
+  const matchedText = match[0] || '';
+  const before = line.slice(0,start);
+  const after = line.slice(start + matchedText.length);
+  snippet.innerHTML = `<div style="margin-top:6px"><code>${escapeHtml(before)}<mark style="background:rgba(11,92,255,0.12);padding:0 6px;border-radius:4px">${escapeHtml(matchedText)}</mark>${escapeHtml(after)}</code></div>`;
+  cont.appendChild(title);
+  cont.appendChild(snippet);
+
+  // groups
+  const groupsContainer = document.createElement('div');
+  groupsContainer.className = 'groups';
+  // named groups (if available)
+  if(match.groups && Object.keys(match.groups).length){
+    for(const [k,v] of Object.entries(match.groups)){
+      const g = document.createElement('span');
+      g.className = 'group';
+      g.innerHTML = `<strong>${escapeHtml(k)}</strong>: ${escapeHtml(v ?? '')}`;
+      groupsContainer.appendChild(g);
+    }
+  } else {
+    // fallback: show numeric groups
+    for(let i=1;i<match.length;i++){
+      const g = document.createElement('span');
+      g.className = 'group';
+      g.innerHTML = `<strong>$${i}</strong>: ${escapeHtml(match[i] ?? '')}`;
+      groupsContainer.appendChild(g);
+    }
+  }
+  cont.appendChild(groupsContainer);
+  matchesDiv.appendChild(cont);
+}
+
+/* small utility */
+function escapeHtml(s){
+  return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* load preset on page load/change */
+presetSelect.addEventListener('change', function(){
+  loadPreset(this.value);
+});
+
+/* allow pressing Ctrl+Enter to test */
+inputText.addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.key === 'Enter'){ runTest(); }
+});
+
+/* initialize */
+loadPreset(presetSelect.value);
+
+</script>
+</body>
+</html>
