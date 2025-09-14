@@ -67,7 +67,7 @@
     align-items: center;
   }
   .box:hover {
-    background: rgba(255, 165, 0, 0.3);
+    background: rgba(128, 0, 128, 0.3); /* lila hover */
     transform: scale(1.05);
   }
   .toggle {
@@ -79,9 +79,10 @@
     font-size: 0.9rem;
     margin-left: 5px;
     color: #fff;
+    background-color: #800080; /* lila */
   }
   .toggle.active {
-    background: rgba(255, 165, 0, 0.8);
+    background: #d580d5; /* helleres Lila wenn aktiv */
   }
   .controls {
     margin-top: 15px;
@@ -93,21 +94,21 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    background: #ff9800;
-    color: #111;
+    background: #800080; /* lila */
+    color: #fff;
     font-weight: bold;
     transition: 0.2s;
     text-transform: uppercase;
   }
   button:hover {
-    background: #ffa733;
+    background: #d580d5; /* helleres lila beim hover */
   }
   .chatty-box {
     margin-top: 15px;
     padding: 12px;
     border-radius: 10px;
-    border: 2px solid #ff9800;
-    color: #ff9800;
+    border: 2px solid #800080;
+    color: #800080;
     font-weight: bold;
     text-align: center;
     width: 100%;
@@ -117,16 +118,8 @@
     text-transform: uppercase;
   }
   .chatty-box.active {
-    background: #ff9800;
-    color: #111;
-  }
-  .watermark {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    font-size: 0.85rem;
-    color: rgba(200, 200, 200, 0.5);
-    font-family: monospace;
+    background: #800080;
+    color: #fff;
   }
 </style>
 </head>
@@ -151,40 +144,16 @@
 
 <div class="chatty-box" id="chattyToggle">CHATTY</div>
 
-<div class="watermark">by rewins</div>
-
 <script>
 const regexMap = {
-  a: "[aA@4äÄàáâãåĀ#*]",
-  b: "[bB8ßẞ#*]",
-  c: "[cC(ķčćç¢©#*]",
-  d: "[dDÐďđ#*]",
-  e: "[eE3€èéêëě#*]",
-  f: "[fFƒ#*]",
-  g: "[gG6ɢ9#*]",
-  h: "[hH#*]",
-  i: "[iI1!|ìíîïįī#*]",
-  j: "[jJ#*]",
-  k: "[kKκ#*]",
-  l: "[lL1!|ł#*]",
-  m: "[mM#*]",
-  n: "[nNñńňņ#*]",
-  o: "[oO0öÖóòôõø¤°#*]",
-  p: "[pPρ¶þ#*]",
-  q: "[qQ9#*]",
-  r: "[rRʁЯ®#*]",
-  s: "[sS5$šśş§ßẞ#*]",
-  t: "[tT7†ŧ#*]",
-  u: "[uUúùûüÜūµ#*]",
-  v: "[vV\\/#!*]",
-  w: "[wWvvωŴ#*]",
-  x: "[xX%×χ#*]",
-  y: "[yY¥ýÿ#*]",
-  z: "[zZ2žźżʒ#*]",
-  ä: "[äA@4aA#*]",
-  ö: "[öÖoO#*]",
-  ü: "[üÜuU#*]",
-  ß: "[ßẞ5$sS#*]"
+  a: "[aA@4äÄàáâãåĀ#*]", b: "[bB8ßẞ#*]", c: "[cC(ķčćç¢©#*]", d: "[dDÐďđ#*]",
+  e: "[eE3€èéêëě#*]", f: "[fFƒ#*]", g: "[gG6ɢ9#*]", h: "[hH#*]",
+  i: "[iI1!|ìíîïįī#*]", j: "[jJ#*]", k: "[kKκ#*]", l: "[lL1!|ł#*]",
+  m: "[mM#*]", n: "[nNñńňņ#*]", o: "[oO0öÖóòôõø¤°#*]", p: "[pPρ¶þ#*]",
+  q: "[qQ9#*]", r: "[rRʁЯ®#*]", s: "[sS5$šśş§ßẞ#*]", t: "[tT7†ŧ#*]",
+  u: "[uUúùûüÜūµ#*]", v: "[vV\\/#!*]", w: "[wWvvωŴ#*]", x: "[xX%×χ#*]",
+  y: "[yY¥ýÿ#*]", z: "[zZ2žźżʒ#*]", ä: "[äA@4aA#*]", ö: "[öÖoO#*]",
+  ü: "[üÜuU#*]", ß: "[ßẞ5$sS#*]"
 };
 
 const grid = document.getElementById("grid");
@@ -204,7 +173,6 @@ function updateDisplay() {
   regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 }
 
-// Boxen erstellen
 Object.keys(regexMap).forEach(letter => {
   const container = document.createElement("div");
   container.className = "box";
@@ -243,7 +211,6 @@ Object.keys(regexMap).forEach(letter => {
   grid.appendChild(container);
 });
 
-// Regex klickbar = Kopieren
 document.getElementById("regexDisplay").onclick = async () => {
   const regexText = regexContent.textContent;
   await navigator.clipboard.writeText(regexText);
@@ -251,14 +218,12 @@ document.getElementById("regexDisplay").onclick = async () => {
   setTimeout(updateDisplay, 1200);
 };
 
-// Clear
 clearBtn.onclick = () => {
   currentWord = "";
   currentRegex = "";
   updateDisplay();
 };
 
-// regex101 öffnen (ohne config:any regi:)
 regexTestBtn.onclick = () => {
   let regexText = regexContent.textContent;
   if (regexText.startsWith("config:any regi:")) {
@@ -268,18 +233,17 @@ regexTestBtn.onclick = () => {
   window.open(url, "_blank");
 };
 
-// Chatty Toggle
 chattyToggle.onclick = () => {
   chattyMode = !chattyMode;
   chattyToggle.classList.toggle("active", chattyMode);
   updateDisplay();
 };
 
-// Initial
 updateDisplay();
 </script>
 </body>
 </html>
+
 
 
 
