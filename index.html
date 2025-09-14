@@ -7,21 +7,27 @@
 <style>
   body {
     font-family: sans-serif;
-    background: #0d0d0d;
-    color: #f5f5f5;
     margin: 0;
+    padding: 0;
+    background: #0d0d0d url('81e9787f-575a-4dfc-8433-0248fb7f9d5f.png') no-repeat center center;
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
   }
 
-  /* -------- Login Container -------- */
+  /* Login Overlay */
   #loginContainer {
+    background: rgba(0,0,0,0.85);
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
   #loginContainer input {
     padding: 10px;
     margin: 5px 0;
@@ -30,6 +36,7 @@
     width: 250px;
     font-size: 1rem;
   }
+
   #loginContainer button {
     margin-top: 10px;
     width: 270px;
@@ -40,33 +47,33 @@
     font-weight: bold;
     border-radius: 12px;
     cursor: pointer;
+    transition: 0.2s;
   }
-  #loginContainer button:hover {
-    background: #d580d5;
-  }
+  #loginContainer button:hover { background: #d580d5; }
+
   #loginError {
-    color: red;
+    color: orange;
     margin-top: 8px;
     font-weight: bold;
   }
 
-  /* -------- App Container -------- */
+  /* App Container */
   #appContainer {
-    display: none; /* erst nach Login sichtbar */
+    display: none;
     flex-direction: column;
     align-items: center;
     width: 100%;
     max-width: 800px;
     padding: 20px;
+    background: rgba(13,13,13,0.95);
+    border-radius: 16px;
   }
-  h1 {
-    margin-bottom: 20px;
-    color: #fff;
-  }
+
+  h1 { color: #fff; margin-bottom: 20px; }
   .display-box {
     font-family: monospace;
     margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255,255,255,0.08);
     padding: 10px;
     border-radius: 10px;
     width: 100%;
@@ -74,17 +81,9 @@
     display: flex;
     gap: 8px;
   }
-  .label {
-    flex: 0 0 auto;
-    color: #ffa733;
-    font-weight: bold;
-  }
-  .content {
-    flex: 1 1 auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  .display-box:hover { background: rgba(255, 165, 0, 0.2); }
+  .label { flex: 0 0 auto; color: #ffa733; font-weight: bold; }
+  .content { flex: 1 1 auto; white-space: pre-wrap; word-wrap: break-word; }
+  .display-box:hover { background: rgba(255,165,0,0.2); }
 
   .grid {
     display: grid;
@@ -97,8 +96,8 @@
     padding: 10px;
     text-align: center;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
     color: #fff;
     font-weight: bold;
     cursor: pointer;
@@ -107,7 +106,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  .box:hover { background: rgba(128, 0, 128, 0.3); transform: scale(1.05); }
+  .box:hover { background: rgba(128,0,128,0.3); transform: scale(1.05); }
 
   .toggle {
     background: #800080;
@@ -122,9 +121,7 @@
   .toggle.active { background: #d580d5; }
 
   .controls { margin-top: 15px; display: flex; gap: 10px; }
-  button { padding: 10px 18px; border: none; border-radius: 12px; cursor: pointer; background: #800080; color: #fff; font-weight: bold; transition: 0.2s; text-transform: uppercase; }
-  button:hover { background: #d580d5; }
-
+  .controls button { text-transform: uppercase; }
   .chatty-box {
     margin-top: 15px;
     padding: 12px;
@@ -144,7 +141,7 @@
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN Overlay -->
 <div id="loginContainer">
   <h2>Login</h2>
   <input type="text" id="username" placeholder="Username">
@@ -156,7 +153,6 @@
 <!-- APP -->
 <div id="appContainer">
   <h1>Twitch Regex Tool</h1>
-
   <div class="display-box" id="wordDisplay">
     <span class="label">Wort:</span>
     <span class="content" id="wordContent"></span>
@@ -178,8 +174,8 @@
 
 <script>
 /* -------- Login -------- */
-const VALID_USERNAME = "testuser"; // Benutzername
-const VALID_LICENSE = "123456";    // Lizenzkey
+const VALID_USERNAME = "testuser";
+const VALID_LICENSE = "123456";
 
 const loginContainer = document.getElementById("loginContainer");
 const appContainer = document.getElementById("appContainer");
@@ -295,18 +291,10 @@ chattyToggle.onclick = () => {
 };
 
 updateDisplay();
-  <!-- LOGIN -->
-<div id="loginContainer" style="background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 16px; text-align: center; width: 320px;">
-  <h2 style="color: #fff; margin-bottom: 20px;">Login</h2>
-  <input type="text" id="username" placeholder="Username" style="padding: 12px; margin: 10px 0; border-radius: 8px; border: none; width: 100%; font-size: 1rem; background: rgba(255,255,255,0.1); color: #fff;">
-  <input type="password" id="licenseKey" placeholder="Lizenzkey" style="padding: 12px; margin: 10px 0; border-radius: 8px; border: none; width: 100%; font-size: 1rem; background: rgba(255,255,255,0.1); color: #fff;">
-  <button id="loginBtn" style="margin-top: 15px; width: 100%; padding: 12px; background: #800080; border: none; color: #fff; font-weight: bold; border-radius: 12px; cursor: pointer; font-size: 1rem;">LOGIN</button>
-  <div id="loginError" style="color: orange; margin-top: 12px; font-weight: bold;"></div>
-</div>
-
 </script>
 </body>
 </html>
+
 
 
 
