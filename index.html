@@ -14,6 +14,163 @@
   --input: #1f1f23;
 }
 body {
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Generator mit Bot-Styles</title>
+<style>
+:root {
+  --bg: #0e0e10;
+  --card: #18181b;
+  --text: #e5e5e5;
+  --accent: #9146ff;
+  --border: #2a2a2d;
+  --input: #1f1f23;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+h1 { color: var(--accent); }
+.container { max-width: 700px; margin: 0 auto; }
+.card {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+label { display: block; margin: 10px 0 5px; font-weight: bold; }
+input[type="text"], input[type="number"], textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+}
+button {
+  background: var(--accent);
+  border: none;
+  padding: 6px 12px;
+  color: white;
+  border-radius: 6px;
+  margin: 5px 5px 5px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+button.bot-button {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+.result {
+  background: #111;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  border: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Regex Generator mit Bot-Styles</h1>
+
+  <div class="card">
+    <label>Bot auswählen:</label>
+    <button class="bot-button" onclick="selectBot('chatty')">Chatty</button>
+    <button class="bot-button" onclick="selectBot('fossabot')">Fossabot</button>
+    <button class="bot-button" onclick="selectBot('nightbot')">Nightbot</button>
+
+    <label>Wort eingeben:</label>
+    <input type="text" id="wordInput" placeholder="z.B. bastard">
+
+    <label>Ab wie vielen Buchstaben matchen? (minChars):</label>
+    <input type="number" id="minCharsInput" value="4" min="1" max="20">
+
+    <button onclick="generateChattyRegex()">Regex generieren</button>
+    <div class="result" id="regexOutput"></div>
+  </div>
+
+  <div class="card">
+    <label>Testtext:</label>
+    <textarea id="testText" placeholder="Hier Testnachrichten einfügen..."></textarea>
+    <button onclick="testChattyRegex()">Regex testen</button>
+    <div class="result" id="testResult"></div>
+  </div>
+</div>
+
+<script>
+let currentBot = 'chatty';
+
+const botVariants = {
+  chatty: { a:'a4', i:'iye1', o:'oö0', e:'e3', s:'s5', t:'t7' },
+  fossabot: { a:'a4', i:'i1', o:'o0', e:'e3', s:'s$', t:'t+' },
+  nightbot: { a:'a@4', i:'i1!', o:'o0', e:'e3', s:'s$', t:'t7' }
+};
+
+function selectBot(botName) {
+  currentBot = botName;
+  generateChattyRegex();
+}
+
+function generateChattyRegex() {
+  const word = document.getElementById('wordInput').value.trim().toLowerCase();
+  const minChars = parseInt(document.getElementById('minCharsInput').value) || 1;
+  if (!word) {
+    document.getElementById('regexOutput').textContent = "Bitte ein Wort eingeben!";
+    return null;
+  }
+
+  let parts = [];
+  const variants = botVariants[currentBot];
+
+  for (let i = 0; i < word.length; i++) {
+    let ch = word[i];
+    let v = variants[ch] || ch;
+
+    if (i < minChars) {
+      parts.push(`[${v}][\\W_]*?`);
+    } else {
+      parts.push(`([${v}][\\W_]*?)?`);
+    }
+  }
+
+  const regexStr = "\\b" + parts.join('') + "\\b";
+  document.getElementById('regexOutput').textContent = regexStr;
+
+  try {
+    return new RegExp(regexStr, "i");
+  } catch (e) {
+    document.getElementById('regexOutput').textContent = "Ungültige Regex: " + e.message;
+    return null;
+  }
+}
+
+function testChattyRegex() {
+  const re = generateChattyRegex();
+  if (!re) return;
+
+  const lines = document.getElementById('testText').value.split(/\n/);
+  let output = "";
+
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    output += re.test(line) ? "✔ " + line + "\n" : "✘ " + line + "\n";
+  }
+
+  document.getElementById('testResult').textContent = output || "Keine Eingabe";
+}
+</script>
+</body>
+</html>
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
